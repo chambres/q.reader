@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		  <body style="background-color:#151718;">
+		  
+		 <style>
+			img {
+			  display: block;
+			  margin-left: auto;
+			  margin-right: auto;
+			}
+		</style>
+		<img id="image" src="carbon.png" class="center">
+        
+        <script type="text/javascript" src="grid.js"></script>
+        <script type="text/javascript" src="version.js"></script>
+        <script type="text/javascript" src="detector.js"></script>
+        <script type="text/javascript" src="formatinf.js"></script>
+        <script type="text/javascript" src="errorlevel.js"></script>
+        <script type="text/javascript" src="bitmat.js"></script>
+        <script type="text/javascript" src="datablock.js"></script>
+        <script type="text/javascript" src="bmparser.js"></script>
+        <script type="text/javascript" src="datamask.js"></script>
+        <script type="text/javascript" src="rsdecoder.js"></script>
+        <script type="text/javascript" src="gf256poly.js"></script>
+        <script type="text/javascript" src="gf256.js"></script>
+        <script type="text/javascript" src="decoder.js"></script>
+        <script type="text/javascript" src="qrcode.js"></script>
+        <script type="text/javascript" src="findpat.js"></script>
+        <script type="text/javascript" src="alignpat.js"></script>
+        <script type="text/javascript" src="databr.js"></script>
+        <script>
+		function copyToClipboard(text) {
+			var dummy = document.createElement("textarea");
+			// to avoid breaking orgain page when copying more words
+			// cant copy when adding below this code
+			// dummy.style.display = 'none'
+			document.body.appendChild(dummy);
+			//Be careful if you use texarea. setAttribute('value', value), which works with "input" does not work with "textarea". – Eduard
+			dummy.value = text;
+			dummy.select();
+			document.execCommand("copy");
+			document.body.removeChild(dummy);
+		}
+			
+		function ValidURL(str) {
+		  var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+		  if(!regex .test(str)) {
+			return false;
+		  } else {
+			return true;
+		  }
+		}
+		document.onpaste = function(event){
+		  var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+		  console.log(JSON.stringify(items)); 
+		  for (index in items) {
+			var item = items[index];
+			if (item.kind === 'file') {
+			  var blob = item.getAsFile();
+			  var reader = new FileReader();
+			  reader.onload = function(event){
+				var imageURI = event.target.result;
+				function decodeImageFromBase64(data, callback){
+
+					qrcode.callback = callback;
+
+					qrcode.decode(data)
+				}
+
+					decodeImageFromBase64(imageURI, function(decodedInformation){
+						console.log(typeof(decodedInformation));
+						if (decodedInformation == "error decoding QR Code"){
+							alert("That's not a QR Code!");
+						}
+						else{
+							if (ValidURL(decodedInformation)){
+								window.location.href = decodedInformation;
+							}
+							else{
+
+								imgReplace = document.getElementsByClassName("center")[0];
+								imgReplace.src = "notpic.png";
+								copyToClipboard(decodedInformation);
+								//alert("Whatever was on the QR code is now on your clipboard!\n" + decodedInformation);
+							}
+						}
+
+					});
+
+				}; 
+
+			  reader.readAsDataURL(blob);
+			}
+		  }
+		}
+      </script>
+
+        
+    </body>
+</html>
